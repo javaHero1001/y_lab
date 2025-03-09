@@ -15,7 +15,7 @@ public class UserService {
         if (name == null || name.trim().isEmpty() || email == null || email.trim().isEmpty() || !email.contains("@") || password == null || password.trim().isEmpty()) {
             return null; // Простая валидация
         }
-        if (userRepository.findByMail(email) != null) {
+        if (findUserByEmail(email) != null) {
             return null; // Пользователь с таким email уже существует
         }
         User user = new User();
@@ -31,7 +31,7 @@ public class UserService {
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             return null;
         }
-        User user = userRepository.findByMail(email);
+        User user = findUserByEmail(email);
         if (user != null && user.getPassword().equals(password)) {
             return user;
         }
@@ -53,7 +53,7 @@ public class UserService {
             updated = true;
         }
         if (email != null && !email.trim().isEmpty() && email.contains("@")) {
-            if (userRepository.findByMail(email) != null && !userRepository.findByMail(email).getId().equals(userId)) {
+            if (findUserByEmail(email) != null && !findUserByEmail(email).getId().equals(userId)) {
                 return false; // Email занят другим пользователем
             }
             user.setEmail(email);
@@ -100,5 +100,29 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    // Новый метод для поиска пользователя по email
+    public User findUserByEmail(String email) {
+        return userRepository.findByMail(email);
+    }
+
+    public void createFirstAdminIfNotExists(String email, String password) {
+        // Проверяем, существует ли уже пользователь с указанным email
+        if (findUserByEmail(email) == null) {
+            // Если нет, создаем нового администратора
+            User firstAdmin = new User();
+            firstAdmin.setName("Администратор");
+            firstAdmin.setEmail(email);
+            firstAdmin.setPassword(password);
+            firstAdmin.setAdmin(true); // Ставим флаг администратора
+            firstAdmin.setBlocked(false);
+
+            // Сохраняем нового администратора
+            userRepository.save(firstAdmin);
+            System.out.println("Первый администратор создан успешно.");
+        } else {
+            System.out.println("Администратор с указанным email уже существует.");
+        }
     }
 }
