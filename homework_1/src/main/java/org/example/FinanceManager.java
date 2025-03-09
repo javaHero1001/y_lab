@@ -48,6 +48,23 @@ public class FinanceManager {
         }
     }
 
+    private static void createFirstAdminIfNotExists() {
+        // Проверяем, существует ли уже пользователь с email "admin@example.com"
+        User existingAdmin = userService.findUserByEmail("admin@example.com");
+
+        if (existingAdmin == null) {
+            // Если нет, создаем нового администратора
+            User newAdmin = userService.registerUser("Администратор", "admin@mail.ru", "1", true);
+            if (newAdmin != null) {
+                System.out.println("Первый администратор создан успешно.");
+            } else {
+                System.out.println("Не удалось создать администратора.");
+            }
+        } else {
+            System.out.println("Администратор с указанным email уже существует.");
+        }
+    }
+
     private static boolean isUserLoggedIn() {
         return currentUser != null;
     }
@@ -287,6 +304,7 @@ public class FinanceManager {
         currentUser = null;
         System.out.println("Вы вышли из аккаунта.");
     }
+
 
     private static void adminMenu() {
         while (true) {
